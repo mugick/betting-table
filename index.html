@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>线下下注台布局器</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="workspace fullscreen-stage">
+      <div class="betting-board" id="betting-board">
+        <div class="board-topbar">
+          <div class="topbar-title">
+            <p class="eyebrow">Offline Table Tool</p>
+            <h1>线下下注台布局器</h1>
+          </div>
+
+          <div class="floating-toolbar">
+            <label class="count-control" for="player-count-input">
+              <span>玩家数</span>
+              <input id="player-count-input" type="number" min="1" max="12" value="6">
+            </label>
+            <button id="apply-count-btn" type="button" class="primary-btn">应用人数</button>
+            <button id="add-player-btn" type="button" class="secondary-btn">加一位</button>
+            <button id="arrange-btn" type="button" class="secondary-btn">自动排布</button>
+            <button id="clear-bets-btn" type="button" class="ghost-btn">清空下注</button>
+            <button id="next-round-btn" type="button" class="secondary-btn">开启下一局</button>
+            <button id="reset-layout-btn" type="button" class="ghost-btn dark-ghost">重置布局</button>
+            <button id="fullscreen-btn" type="button" class="ghost-btn dark-ghost">进入全屏</button>
+          </div>
+
+          <div class="dealer-panel">
+            <span class="dealer-label">庄家</span>
+            <strong id="dealer-score-stat">20</strong>
+            <small id="round-status-text">准备开始</small>
+          </div>
+
+          <div class="topbar-stats">
+            <article class="stat-pill">
+              <span>玩家</span>
+              <strong id="player-count-stat">0</strong>
+            </article>
+            <article class="stat-pill">
+              <span>已下注</span>
+              <strong id="active-count-stat">0</strong>
+            </article>
+            <article class="stat-pill">
+              <span>总下注</span>
+              <strong id="total-bet-stat">0</strong>
+            </article>
+          </div>
+        </div>
+
+        <div class="board-centerpiece">
+          <p>下注桌面</p>
+          <strong>拖动每个玩家卡片来对应现实坐位</strong>
+        </div>
+
+        <div id="players-layer" class="players-layer"></div>
+
+        <button id="new-match-btn" type="button" class="new-match-btn">开始下一轮</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
