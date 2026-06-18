@@ -7,7 +7,7 @@ const PLAYER_INITIAL_SCORE = 0;
 const INITIAL_BET = 1;
 const PLAYER_X_MIN = 0.12;
 const PLAYER_X_MAX = 0.88;
-const PLAYER_Y_MIN = 0.24;
+const PLAYER_Y_MIN = 0.12;
 const PLAYER_Y_MAX = 0.86;
 
 const state = {
@@ -154,9 +154,9 @@ function arrangePlayers() {
   }
 
   const centerX = 0.5;
-  const centerY = 0.56;
+  const centerY = 0.5;
   const radiusX = 0.36;
-  const radiusY = 0.29;
+  const radiusY = 0.33;
   const startAngle = -Math.PI / 2;
 
   state.players.forEach((player, index) => {

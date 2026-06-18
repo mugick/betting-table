@@ -71,10 +71,22 @@ h3 {
 .workspace {
   width: 100%;
   height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .fullscreen-stage {
   padding: 0;
+}
+
+.stage-chrome {
+  position: relative;
+  z-index: 6;
+  padding: 12px 14px 10px;
+  background:
+    linear-gradient(180deg, rgba(12, 41, 34, 0.94), rgba(12, 41, 34, 0.8)),
+    linear-gradient(145deg, var(--table-light) 0%, var(--table-mid) 38%, var(--table-dark) 100%);
+  border-bottom: 1px solid rgba(255, 230, 191, 0.14);
 }
 
 .count-control {
@@ -151,7 +163,7 @@ textarea {
 .betting-board {
   position: relative;
   width: 100%;
-  height: 100dvh;
+  height: 100%;
   overflow: hidden;
   border-radius: 0;
   border: 0;
@@ -180,23 +192,18 @@ textarea {
 }
 
 .board-topbar {
-  position: absolute;
-  top: 14px;
-  left: 18px;
-  right: 18px;
-  z-index: 5;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: start;
-  gap: 14px;
-  pointer-events: none;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
 }
 
 .topbar-title,
+.score-strip,
 .dealer-panel,
 .topbar-stats,
 .floating-toolbar {
-  pointer-events: auto;
+  min-width: 0;
 }
 
 .topbar-title {
@@ -211,12 +218,22 @@ textarea {
   font-size: clamp(1.15rem, 2vw, 1.6rem);
 }
 
+.topbar-title .eyebrow {
+  margin-bottom: 6px;
+}
+
+.score-strip {
+  display: flex;
+  align-items: stretch;
+  justify-content: end;
+  gap: 10px;
+}
+
 .topbar-stats {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   justify-content: end;
-  align-self: start;
 }
 
 .dealer-panel {
@@ -273,22 +290,28 @@ textarea {
 
 .floating-toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
   align-items: center;
-  align-self: center;
   padding: 12px;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
+  min-width: 0;
   border-radius: 22px;
   background: rgba(255, 248, 236, 0.9);
   border: 1px solid rgba(29, 24, 20, 0.1);
   box-shadow: var(--shadow);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
 
 .floating-toolbar .count-control {
   width: 92px;
+  flex: 0 0 auto;
+}
+
+.floating-toolbar button {
+  flex: 0 0 auto;
 }
 
 .board-centerpiece {
@@ -481,18 +504,127 @@ textarea {
   font-size: 0.98rem;
 }
 
-@media (max-width: 1320px) {
+@media (max-width: 980px) {
   .board-topbar {
     grid-template-columns: 1fr;
+    align-items: stretch;
   }
 
-  .topbar-stats {
-    justify-content: start;
+  .score-strip {
+    justify-content: space-between;
+    flex-wrap: wrap;
   }
 
   .floating-toolbar {
-    width: fit-content;
-    max-width: min(100%, 920px);
+    width: 100%;
+  }
+}
+
+@media (max-width: 1024px), ((max-height: 900px) and (orientation: landscape)) {
+  .stage-chrome {
+    padding: 8px 10px 8px;
+  }
+
+  .topbar-title {
+    padding: 12px 14px;
+  }
+
+  .topbar-title .eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+  }
+
+  .topbar-title h1 {
+    font-size: 1.05rem;
+  }
+
+  .floating-toolbar {
+    padding: 8px;
+    gap: 8px;
+    border-radius: 18px;
+  }
+
+  .primary-btn,
+  .secondary-btn,
+  .ghost-btn {
+    padding: 9px 12px;
+    border-radius: 14px;
+    font-size: 0.92rem;
+  }
+
+  .count-control {
+    min-width: 80px;
+    gap: 4px;
+  }
+
+  .count-control span {
+    font-size: 0.82rem;
+  }
+
+  .floating-toolbar .count-control {
+    width: 78px;
+  }
+
+  input[type="number"],
+  input[type="text"] {
+    padding: 9px 10px;
+    border-radius: 12px;
+  }
+
+  .dealer-panel,
+  .stat-pill {
+    padding: 9px 10px;
+    border-radius: 15px;
+  }
+
+  .dealer-panel {
+    min-width: 112px;
+  }
+
+  .dealer-panel strong,
+  .stat-pill strong {
+    font-size: 1.08rem;
+  }
+
+  .dealer-label,
+  .dealer-panel small,
+  .stat-pill span {
+    font-size: 0.72rem;
+  }
+
+  .bet-seat {
+    width: 154px;
+    padding: 8px;
+    border-radius: 18px;
+  }
+
+  .seat-handle {
+    margin-bottom: 8px;
+    padding: 7px 8px;
+  }
+
+  .seat-fields {
+    gap: 6px;
+  }
+
+  .field-label,
+  .seat-subtitle {
+    font-size: 0.72rem;
+  }
+
+  .chip-btn,
+  .result-btn {
+    font-size: 0.72rem;
+  }
+
+  .board-centerpiece {
+    display: none;
+  }
+
+  .new-match-btn {
+    padding: 12px 14px;
+    border-radius: 16px;
+    font-size: 0.95rem;
   }
 }
 
@@ -502,13 +634,11 @@ textarea {
   }
 
   .betting-board {
-    height: 100svh;
+    min-height: 100svh;
   }
 
-  .board-topbar {
-    top: 10px;
-    left: 10px;
-    right: 10px;
+  .score-strip {
+    justify-content: start;
   }
 
   .floating-toolbar {
@@ -516,6 +646,7 @@ textarea {
     grid-template-columns: 1fr 1fr;
     width: 100%;
     max-width: none;
+    overflow: visible;
   }
 
   .dealer-panel {

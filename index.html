@@ -12,7 +12,7 @@
 <body>
   <main class="app-shell">
     <section class="workspace fullscreen-stage">
-      <div class="betting-board" id="betting-board">
+      <div class="stage-chrome">
         <div class="board-topbar">
           <div class="topbar-title">
             <p class="eyebrow">Offline Table Tool</p>
@@ -33,28 +33,32 @@
             <button id="fullscreen-btn" type="button" class="ghost-btn dark-ghost">进入全屏</button>
           </div>
 
-          <div class="dealer-panel">
-            <span class="dealer-label">庄家</span>
-            <strong id="dealer-score-stat">20</strong>
-            <small id="round-status-text">准备开始</small>
-          </div>
+          <div class="score-strip">
+            <div class="dealer-panel">
+              <span class="dealer-label">庄家</span>
+              <strong id="dealer-score-stat">20</strong>
+              <small id="round-status-text">准备开始</small>
+            </div>
 
-          <div class="topbar-stats">
-            <article class="stat-pill">
-              <span>玩家</span>
-              <strong id="player-count-stat">0</strong>
-            </article>
-            <article class="stat-pill">
-              <span>已下注</span>
-              <strong id="active-count-stat">0</strong>
-            </article>
-            <article class="stat-pill">
-              <span>总下注</span>
-              <strong id="total-bet-stat">0</strong>
-            </article>
+            <div class="topbar-stats">
+              <article class="stat-pill">
+                <span>玩家</span>
+                <strong id="player-count-stat">0</strong>
+              </article>
+              <article class="stat-pill">
+                <span>已下注</span>
+                <strong id="active-count-stat">0</strong>
+              </article>
+              <article class="stat-pill">
+                <span>总下注</span>
+                <strong id="total-bet-stat">0</strong>
+              </article>
+            </div>
           </div>
         </div>
+      </div>
 
+      <div class="betting-board" id="betting-board">
         <div class="board-centerpiece">
           <p>下注桌面</p>
           <strong>拖动每个玩家卡片来对应现实坐位</strong>
