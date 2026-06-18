@@ -51,16 +51,55 @@ const seatColors = [
 ];
 
 let dragState = null;
+let lastTabletMinimal = null;
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function getBoardBounds() {
+  if (document.body.classList.contains("tablet-minimal")) {
+    return {
+      xMin: 0.2,
+      xMax: 0.8,
+      yMin: 0.26,
+      yMax: 0.88
+    };
+  }
+
+  return {
+    xMin: PLAYER_X_MIN,
+    xMax: PLAYER_X_MAX,
+    yMin: PLAYER_Y_MIN,
+    yMax: PLAYER_Y_MAX
+  };
+}
+
+function normalizePlayerPositions() {
+  const bounds = getBoardBounds();
+  state.players.forEach((player) => {
+    player.x = clamp(player.x, bounds.xMin, bounds.xMax);
+    player.y = clamp(player.y, bounds.yMin, bounds.yMax);
+  });
+}
+
 function updateResponsiveMode() {
-  const isTabletMinimal = window.matchMedia(
-    "(max-width: 1400px) and (max-height: 950px) and (orientation: landscape)"
-  ).matches;
+  const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+  const isTouchDevice =
+    window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
+  const isCompactLandscape = window.innerWidth <= 1600 && window.innerHeight <= 1100;
+  const isTabletMinimal = isLandscape && (isTouchDevice || isCompactLandscape);
   document.body.classList.toggle("tablet-minimal", isTabletMinimal);
+
+  if (lastTabletMinimal !== isTabletMinimal) {
+    normalizePlayerPositions();
+    persistState();
+    if (state.players.length > 0) {
+      render();
+    }
+  }
+
+  lastTabletMinimal = isTabletMinimal;
 }
 
 function formatMoney(value) {
@@ -76,8 +115,9 @@ function sanitizeDealer(rawDealer) {
 
 function sanitizePlayer(rawPlayer, index) {
   const fallbackIndex = index + 1;
-  const x = Number.isFinite(rawPlayer?.x) ? clamp(rawPlayer.x, PLAYER_X_MIN, PLAYER_X_MAX) : 0.5;
-  const y = Number.isFinite(rawPlayer?.y) ? clamp(rawPlayer.y, PLAYER_Y_MIN, PLAYER_Y_MAX) : 0.5;
+  const bounds = getBoardBounds();
+  const x = Number.isFinite(rawPlayer?.x) ? clamp(rawPlayer.x, bounds.xMin, bounds.xMax) : 0.5;
+  const y = Number.isFinite(rawPlayer?.y) ? clamp(rawPlayer.y, bounds.yMin, bounds.yMax) : 0.5;
 
   return {
     id: Number.isFinite(rawPlayer?.id) ? rawPlayer.id : fallbackIndex,
@@ -154,6 +194,8 @@ function createPlayers(count) {
 
 function arrangePlayers() {
   const total = state.players.length;
+  const bounds = getBoardBounds();
+
   if (total === 1) {
     state.players[0].x = 0.5;
     state.players[0].y = 0.78;
@@ -168,8 +210,8 @@ function arrangePlayers() {
 
   state.players.forEach((player, index) => {
     const angle = startAngle + (Math.PI * 2 * index) / total;
-    player.x = clamp(centerX + Math.cos(angle) * radiusX, PLAYER_X_MIN, PLAYER_X_MAX);
-    player.y = clamp(centerY + Math.sin(angle) * radiusY, PLAYER_Y_MIN, PLAYER_Y_MAX);
+    player.x = clamp(centerX + Math.cos(angle) * radiusX, bounds.xMin, bounds.xMax);
+    player.y = clamp(centerY + Math.sin(angle) * radiusY, bounds.yMin, bounds.yMax);
   });
 }
 
@@ -275,28 +317,16 @@ function renderPlayers() {
         <div>
           <div class="seat-tag">
             <span class="seat-dot" style="background:${player.color}"></span>
-            <span>座位 ${index + 1}</span>
+            <span>位 ${index + 1}</span>
           </div>
-          <div class="seat-subtitle">拖动定位</div>
+          <div class="seat-subtitle">拖动 · ${formatMoney(player.score)} 分</div>
         </div>
         <button type="button" class="remove-btn" data-remove-player="${player.id}" aria-label="删除玩家">×</button>
       </div>
 
       <div class="seat-fields">
         <label class="field-group">
-          <span class="field-label">玩家名称</span>
-          <input
-            class="player-name-input"
-            data-player-name="${player.id}"
-            type="text"
-            maxlength="20"
-            placeholder="玩家名"
-            value="${escapeAttribute(player.name)}"
-          >
-        </label>
-
-        <label class="field-group">
-          <span class="field-label">下注金额</span>
+          <span class="field-label">下注</span>
           <input
             class="player-bet-input"
             data-player-bet="${player.id}"
@@ -320,17 +350,6 @@ function renderPlayers() {
           <button type="button" class="result-btn win" data-result="${player.id}:win">赢</button>
           <button type="button" class="result-btn double" data-result="${player.id}:double">赢双倍</button>
         </div>
-
-        <div class="seat-metrics">
-          <div class="seat-metric">
-            <span>当前下注</span>
-            <strong data-bet-total="${player.id}">${formatMoney(player.bet)}</strong>
-          </div>
-          <div class="seat-metric">
-            <span>当前得分</span>
-            <strong data-score-total="${player.id}">${formatMoney(player.score)}</strong>
-          </div>
-        </div>
       </div>
     `;
 
@@ -351,15 +370,9 @@ function syncSeatDisplay(playerId) {
     return;
   }
 
-  const betTotal = seat.querySelector(`[data-bet-total="${playerId}"]`);
-  const scoreTotal = seat.querySelector(`[data-score-total="${playerId}"]`);
-
-  if (betTotal) {
-    betTotal.textContent = formatMoney(player.bet);
-  }
-
-  if (scoreTotal) {
-    scoreTotal.textContent = formatMoney(player.score);
+  const subtitle = seat.querySelector(".seat-subtitle");
+  if (subtitle) {
+    subtitle.textContent = `拖动 · ${formatMoney(player.score)} 分`;
   }
 }
 
@@ -460,14 +473,6 @@ function handleLayerClick(event) {
 }
 
 function handleLayerInput(event) {
-  const nameInput = event.target.closest("[data-player-name]");
-  if (nameInput) {
-    updatePlayer(Number(nameInput.dataset.playerName), {
-      name: nameInput.value.trim() || "未命名玩家"
-    });
-    return;
-  }
-
   const betInput = event.target.closest("[data-player-bet]");
   if (betInput) {
     const amount = Number(betInput.value);
@@ -483,11 +488,12 @@ function updateDraggedPlayer(pointerX, pointerY) {
   }
 
   const boardRect = els.bettingBoard.getBoundingClientRect();
+  const bounds = getBoardBounds();
   const centerX = pointerX - boardRect.left - dragState.offsetX;
   const centerY = pointerY - boardRect.top - dragState.offsetY;
 
-  const x = clamp(centerX / boardRect.width, PLAYER_X_MIN, PLAYER_X_MAX);
-  const y = clamp(centerY / boardRect.height, PLAYER_Y_MIN, PLAYER_Y_MAX);
+  const x = clamp(centerX / boardRect.width, bounds.xMin, bounds.xMax);
+  const y = clamp(centerY / boardRect.height, bounds.yMin, bounds.yMax);
   const player = state.players.find((entry) => entry.id === dragState.playerId);
 
   if (!player) {
