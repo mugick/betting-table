@@ -670,3 +670,170 @@ textarea {
     bottom: 10px;
   }
 }
+
+body.tablet-minimal .stage-chrome {
+  padding: 6px 8px 6px;
+}
+
+body.tablet-minimal .board-topbar {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+body.tablet-minimal .topbar-title {
+  padding: 10px 12px;
+  border-radius: 16px;
+}
+
+body.tablet-minimal .topbar-title .eyebrow {
+  display: none;
+}
+
+body.tablet-minimal .topbar-title h1 {
+  font-size: 1rem;
+}
+
+body.tablet-minimal .score-strip {
+  gap: 6px;
+}
+
+body.tablet-minimal .dealer-panel,
+body.tablet-minimal .stat-pill {
+  min-width: auto;
+  padding: 8px 9px;
+  border-radius: 14px;
+}
+
+body.tablet-minimal .dealer-panel small {
+  display: none;
+}
+
+body.tablet-minimal .dealer-label,
+body.tablet-minimal .stat-pill span {
+  font-size: 0.68rem;
+}
+
+body.tablet-minimal .dealer-panel strong,
+body.tablet-minimal .stat-pill strong {
+  font-size: 1rem;
+}
+
+body.tablet-minimal .floating-toolbar {
+  padding: 6px;
+  gap: 6px;
+  border-radius: 16px;
+}
+
+body.tablet-minimal .primary-btn,
+body.tablet-minimal .secondary-btn,
+body.tablet-minimal .ghost-btn {
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 0.84rem;
+}
+
+body.tablet-minimal .count-control {
+  min-width: 72px;
+  gap: 4px;
+}
+
+body.tablet-minimal .count-control span {
+  font-size: 0.72rem;
+}
+
+body.tablet-minimal .floating-toolbar .count-control {
+  width: 68px;
+}
+
+body.tablet-minimal input[type="number"],
+body.tablet-minimal input[type="text"] {
+  padding: 7px 8px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+}
+
+body.tablet-minimal .board-centerpiece {
+  display: none;
+}
+
+body.tablet-minimal .betting-board::before {
+  inset: 8px;
+  border-radius: 22px;
+}
+
+body.tablet-minimal .betting-board::after {
+  inset: 12% 20%;
+}
+
+body.tablet-minimal .bet-seat {
+  width: 136px;
+  padding: 7px;
+  border-radius: 16px;
+}
+
+body.tablet-minimal .seat-handle {
+  margin-bottom: 6px;
+  padding: 6px 7px;
+  border-radius: 12px;
+}
+
+body.tablet-minimal .seat-dot {
+  width: 10px;
+  height: 10px;
+}
+
+body.tablet-minimal .seat-tag {
+  gap: 6px;
+  font-size: 0.74rem;
+}
+
+body.tablet-minimal .remove-btn {
+  width: 20px;
+  height: 20px;
+  font-size: 0.72rem;
+}
+
+body.tablet-minimal .seat-fields {
+  gap: 5px;
+}
+
+body.tablet-minimal .field-label {
+  display: none;
+}
+
+body.tablet-minimal .seat-subtitle {
+  font-size: 0.66rem;
+}
+
+body.tablet-minimal .chip-row,
+body.tablet-minimal .result-row {
+  gap: 4px;
+}
+
+body.tablet-minimal .chip-btn,
+body.tablet-minimal .result-btn {
+  padding: 5px 4px;
+  border-radius: 9px;
+  font-size: 0.62rem;
+}
+
+body.tablet-minimal .seat-metrics {
+  gap: 4px;
+  padding-top: 6px;
+}
+
+body.tablet-minimal .seat-metric span {
+  font-size: 0.62rem;
+}
+
+body.tablet-minimal .seat-metric strong {
+  font-size: 0.8rem;
+}
+
+body.tablet-minimal .new-match-btn {
+  right: 8px;
+  bottom: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 0.82rem;
+}

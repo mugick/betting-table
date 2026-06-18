@@ -56,6 +56,13 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function updateResponsiveMode() {
+  const isTabletMinimal = window.matchMedia(
+    "(max-width: 1400px) and (max-height: 950px) and (orientation: landscape)"
+  ).matches;
+  document.body.classList.toggle("tablet-minimal", isTabletMinimal);
+}
+
 function formatMoney(value) {
   return new Intl.NumberFormat("zh-CN").format(value);
 }
@@ -283,6 +290,7 @@ function renderPlayers() {
             data-player-name="${player.id}"
             type="text"
             maxlength="20"
+            placeholder="玩家名"
             value="${escapeAttribute(player.name)}"
           >
         </label>
@@ -295,6 +303,7 @@ function renderPlayers() {
             type="number"
             min="0"
             step="1"
+            placeholder="下注"
             value="${player.bet}"
           >
         </label>
@@ -617,6 +626,7 @@ function bindEvents() {
 
   document.addEventListener("fullscreenchange", () => {
     els.fullscreenBtn.textContent = document.fullscreenElement ? "退出全屏" : "进入全屏";
+    updateResponsiveMode();
   });
 
   els.playersLayer.addEventListener("click", handleLayerClick);
@@ -628,8 +638,10 @@ function bindEvents() {
   window.addEventListener("touchmove", moveTouchDrag, { passive: false });
   window.addEventListener("touchend", endDrag);
   window.addEventListener("touchcancel", endDrag);
+  window.addEventListener("resize", updateResponsiveMode);
 }
 
 loadState();
 bindEvents();
+updateResponsiveMode();
 render();
