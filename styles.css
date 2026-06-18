@@ -827,9 +827,9 @@ body.tablet-minimal .chip-btn {
 }
 
 body.tablet-minimal .result-btn {
-  padding: 4px 3px;
-  border-radius: 8px;
-  font-size: 0.54rem;
+  padding: 8px 8px;
+  border-radius: 11px;
+  font-size: 0.8rem;
 }
 
 body.tablet-minimal .new-match-btn {
