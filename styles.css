@@ -755,9 +755,9 @@ body.tablet-minimal .floating-toolbar .count-control {
 
 body.tablet-minimal input[type="number"],
 body.tablet-minimal input[type="text"] {
-  padding: 8px 9px;
-  border-radius: 11px;
-  font-size: 0.88rem;
+  padding: 9px 10px;
+  border-radius: 12px;
+  font-size: 0.92rem;
 }
 
 body.tablet-minimal .board-centerpiece {
@@ -774,15 +774,15 @@ body.tablet-minimal .betting-board::after {
 }
 
 body.tablet-minimal .bet-seat {
-  width: 132px;
-  padding: 8px;
-  border-radius: 16px;
+  width: 148px;
+  padding: 9px;
+  border-radius: 18px;
 }
 
 body.tablet-minimal .seat-handle {
   margin-bottom: 6px;
-  padding: 6px 7px;
-  border-radius: 11px;
+  padding: 7px 8px;
+  border-radius: 12px;
 }
 
 body.tablet-minimal .seat-dot {
@@ -792,13 +792,13 @@ body.tablet-minimal .seat-dot {
 
 body.tablet-minimal .seat-tag {
   gap: 4px;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
 }
 
 body.tablet-minimal .remove-btn {
-  width: 20px;
-  height: 20px;
-  font-size: 0.68rem;
+  width: 22px;
+  height: 22px;
+  font-size: 0.72rem;
 }
 
 body.tablet-minimal .seat-fields {
@@ -811,7 +811,7 @@ body.tablet-minimal .field-label {
 
 body.tablet-minimal .seat-subtitle {
   display: block;
-  font-size: 0.62rem;
+  font-size: 0.66rem;
   line-height: 1.1;
 }
 
@@ -820,11 +820,16 @@ body.tablet-minimal .result-row {
   gap: 5px;
 }
 
-body.tablet-minimal .chip-btn,
+body.tablet-minimal .chip-btn {
+  padding: 8px 8px;
+  border-radius: 11px;
+  font-size: 0.8rem;
+}
+
 body.tablet-minimal .result-btn {
-  padding: 7px 6px;
-  border-radius: 10px;
-  font-size: 0.72rem;
+  padding: 4px 3px;
+  border-radius: 8px;
+  font-size: 0.54rem;
 }
 
 body.tablet-minimal .new-match-btn {
