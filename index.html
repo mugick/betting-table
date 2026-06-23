@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>线下下注台布局器</title>
+  <title>多人下注台</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,66 +11,277 @@
 </head>
 <body>
   <main class="app-shell">
-    <section class="workspace fullscreen-stage">
-      <div class="stage-chrome">
-        <div class="board-topbar">
-          <div class="topbar-title">
-            <p class="eyebrow">Offline Table Tool</p>
-            <h1>线下下注台布局器</h1>
-          </div>
+    <section id="setup-banner" class="setup-banner hidden"></section>
 
-          <div class="floating-toolbar">
-            <label class="count-control" for="player-count-input">
-              <span>玩家数</span>
-              <input id="player-count-input" type="number" min="1" max="12" value="6">
-            </label>
-            <button id="apply-count-btn" type="button" class="primary-btn">应用</button>
-            <button id="add-player-btn" type="button" class="secondary-btn">+玩家</button>
-            <button id="arrange-btn" type="button" class="secondary-btn">排布</button>
-            <button id="clear-bets-btn" type="button" class="ghost-btn">清下注</button>
-            <button id="next-round-btn" type="button" class="secondary-btn">下一局</button>
-            <button id="reset-layout-btn" type="button" class="ghost-btn dark-ghost">重布局</button>
-            <button id="fullscreen-btn" type="button" class="ghost-btn dark-ghost">全屏</button>
+    <section id="login-view" class="screen screen-login">
+      <div class="login-shell">
+        <article class="login-hero card-shell">
+          <p class="eyebrow">Realtime Table Tool</p>
+          <h1>多人下注台</h1>
+          <p class="hero-copy">
+            玩家在各自页面下注，管理员统一看盘、结算、开下一局与下一轮。
+          </p>
+          <div class="hero-badges">
+            <span>Vercel 前端</span>
+            <span>Supabase 实时同步</span>
+            <span>适合平板牌桌</span>
           </div>
+        </article>
 
-          <div class="score-strip">
-            <div class="dealer-panel">
-              <span class="dealer-label">庄家</span>
-              <strong id="dealer-score-stat">20</strong>
-              <small id="round-status-text">准备开始</small>
+        <article class="login-panel card-shell">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">入口</p>
+              <h2>选择身份</h2>
             </div>
+            <button id="refresh-login-btn" type="button" class="ghost-btn dark-ghost compact-btn">刷新名单</button>
+          </div>
 
-            <div class="topbar-stats">
-              <article class="stat-pill">
-                <span>玩家</span>
-                <strong id="player-count-stat">0</strong>
-              </article>
-              <article class="stat-pill">
-                <span>已下注</span>
-                <strong id="active-count-stat">0</strong>
-              </article>
-              <article class="stat-pill">
-                <span>总下注</span>
-                <strong id="total-bet-stat">0</strong>
-              </article>
+          <div class="login-entry-grid">
+            <button id="admin-login-btn" type="button" class="identity-card identity-card-admin">
+              <span class="identity-label">管理员</span>
+              <strong>进入总控台</strong>
+              <small>添加玩家、查看下注、逐个结算</small>
+            </button>
+
+            <div class="identity-card identity-card-player">
+              <span class="identity-label">玩家</span>
+              <strong>点击你的名字登录</strong>
+              <small>实时看到庄家分数、个人得分与历史流水</small>
             </div>
           </div>
-        </div>
+
+          <div class="player-login-section">
+            <div class="section-head compact-head">
+              <h3>玩家名单</h3>
+              <span id="login-player-count" class="tiny-meta">0 人</span>
+            </div>
+            <div id="player-login-list" class="player-login-list"></div>
+          </div>
+
+          <div class="setup-section">
+            <div class="section-head compact-head">
+              <div>
+                <p class="section-kicker">设置</p>
+                <h3>低频配置</h3>
+              </div>
+            </div>
+
+            <div class="setup-grid">
+              <label class="count-control setup-control" for="new-player-name">
+                <span>新玩家姓名</span>
+                <input id="new-player-name" type="text" maxlength="20" placeholder="例如：小王">
+              </label>
+              <button id="add-player-btn" type="button" class="primary-btn">添加玩家</button>
+
+              <label class="count-control setup-control" for="dealer-initial-score-input">
+                <span>庄家初始分</span>
+                <input id="dealer-initial-score-input" type="number" min="1" step="1" value="20">
+              </label>
+              <button id="save-settings-btn" type="button" class="secondary-btn">保存初始分</button>
+            </div>
+          </div>
+
+          <p id="login-status" class="login-status">请先连接 Supabase，再选择身份进入。</p>
+        </article>
       </div>
+    </section>
 
-      <div class="betting-board" id="betting-board">
-        <div class="board-centerpiece">
-          <p>下注桌面</p>
-          <strong>拖动每个玩家卡片来对应现实坐位</strong>
+    <section id="admin-view" class="screen hidden">
+      <section class="workspace fullscreen-stage admin-workspace">
+        <div class="stage-chrome">
+          <div class="board-topbar">
+            <div class="topbar-title">
+              <p class="eyebrow">Admin Control</p>
+              <h1>管理员总控台</h1>
+            </div>
+
+            <div class="floating-toolbar">
+              <button id="arrange-btn" type="button" class="secondary-btn">自动排布</button>
+              <button id="new-day-btn" type="button" class="secondary-btn">开启今日</button>
+              <button id="next-hand-btn" type="button" class="secondary-btn">开始下一局</button>
+              <button id="history-btn" type="button" class="secondary-btn">结算流水</button>
+              <button id="reset-layout-btn" type="button" class="ghost-btn dark-ghost">重布局</button>
+              <button id="fullscreen-btn" type="button" class="ghost-btn dark-ghost">全屏</button>
+              <button id="admin-logout-btn" type="button" class="ghost-btn dark-ghost">退出</button>
+            </div>
+
+            <div class="score-strip">
+              <div class="dealer-panel">
+                <span class="dealer-label">庄家当前分</span>
+                <strong id="dealer-score-stat">20</strong>
+                <small id="dealer-player-text">当前未指定庄家</small>
+                <small id="round-status-text">准备开始</small>
+              </div>
+
+              <div class="topbar-stats">
+                <article class="stat-pill">
+                  <span>玩家</span>
+                  <strong id="player-count-stat">0</strong>
+                </article>
+                <article class="stat-pill">
+                  <span>在线</span>
+                  <strong id="online-count-stat">0</strong>
+                </article>
+                <article class="stat-pill">
+                  <span>已下注</span>
+                  <strong id="active-count-stat">0</strong>
+                </article>
+                <article class="stat-pill">
+                  <span>总下注</span>
+                  <strong id="total-bet-stat">0</strong>
+                </article>
+                <article class="stat-pill">
+                  <span>天 / 轮 / 局</span>
+                  <strong id="round-hand-stat">1 / 1 / 1</strong>
+                </article>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div id="players-layer" class="players-layer"></div>
+        <div class="admin-body">
+          <div class="betting-board" id="betting-board">
+            <div class="board-centerpiece">
+              <p>实时牌桌</p>
+              <strong>拖动和旋转玩家卡片，让布局贴近现实坐位</strong>
+            </div>
 
-        <button id="new-match-btn" type="button" class="new-match-btn">下一轮</button>
+            <div id="players-layer" class="players-layer"></div>
+
+            <button id="new-round-btn" type="button" class="new-match-btn">开始下一轮</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section id="player-view" class="screen hidden">
+      <div class="player-shell">
+        <header class="player-header card-shell">
+          <div>
+            <p class="eyebrow">Player View</p>
+            <h1 id="player-name-heading">玩家</h1>
+            <p id="player-status-message" class="hero-copy">等待管理员开始本局。</p>
+          </div>
+          <button id="player-logout-btn" type="button" class="ghost-btn dark-ghost">退出</button>
+        </header>
+
+        <div class="player-main">
+          <section class="player-overview">
+            <article class="player-stat-card card-shell">
+              <span>本轮得分</span>
+              <strong id="player-round-score-stat">0</strong>
+            </article>
+            <article class="player-stat-card card-shell">
+              <span>今天得分</span>
+              <strong id="player-day-score-stat">0</strong>
+            </article>
+            <article class="player-stat-card card-shell">
+              <span>庄家分数</span>
+              <strong id="player-dealer-score-stat">20</strong>
+            </article>
+            <article class="player-stat-card card-shell">
+              <span>本局下注</span>
+              <strong id="player-bet-stat">0</strong>
+            </article>
+            <article class="player-stat-card card-shell">
+              <span>天 / 轮 / 局</span>
+              <strong id="player-round-hand-stat">1 / 1 / 1</strong>
+            </article>
+          </section>
+
+          <section class="player-action-card card-shell">
+            <div class="section-head compact-head">
+              <div>
+                <p class="section-kicker">下注</p>
+                <h2>修改我的下注</h2>
+              </div>
+              <span id="player-updated-at" class="tiny-meta">等待同步</span>
+            </div>
+
+            <label class="field-group">
+              <span class="field-label">当前下注</span>
+              <input id="player-bet-input" type="number" min="0" step="1" value="0">
+            </label>
+
+            <div class="chip-row chip-row-large">
+              <button id="player-chip-1" type="button" class="chip-btn">+1</button>
+              <button id="player-chip-5" type="button" class="chip-btn">+5</button>
+              <button id="player-chip-10" type="button" class="chip-btn">+10</button>
+              <button id="player-chip-clear" type="button" class="chip-btn clear">清空</button>
+            </div>
+
+            <div class="player-dealer-row">
+              <button id="player-become-dealer-btn" type="button" class="secondary-btn">当庄家</button>
+            </div>
+
+            <div class="player-note-row">
+              <p class="player-note">下注会自动实时同步给管理员，最后一次提交为准。</p>
+            </div>
+          </section>
+
+          <section class="player-history-card card-shell">
+            <div class="section-head compact-head">
+              <div>
+                <p class="section-kicker">流水</p>
+                <h2>我的输赢历史</h2>
+              </div>
+              <span id="player-history-count" class="tiny-meta">0 条</span>
+            </div>
+            <div id="player-history-list" class="history-list"></div>
+          </section>
+        </div>
       </div>
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <div id="result-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-card">
+      <p class="section-kicker">确认结算</p>
+      <h2 id="modal-title">确认输赢</h2>
+      <p id="modal-description" class="modal-description"></p>
+      <div class="modal-actions">
+        <button id="modal-cancel-btn" type="button" class="secondary-btn">取消</button>
+        <button id="modal-confirm-btn" type="button" class="primary-btn">确认结算</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="history-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-close-history-modal="true"></div>
+    <div class="modal-card modal-card-wide">
+      <div class="section-head compact-head">
+        <div>
+          <p class="section-kicker">流水</p>
+          <h2>结算流水</h2>
+        </div>
+        <button id="history-close-btn" type="button" class="ghost-btn dark-ghost compact-btn">关闭</button>
+      </div>
+      <div class="history-modal-head">
+        <span id="admin-history-count" class="tiny-meta">0 条</span>
+      </div>
+      <div id="admin-history-list" class="history-list history-list-modal"></div>
+    </div>
+  </div>
+
+  <div id="dealer-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-close-dealer-modal="true"></div>
+    <div class="modal-card">
+      <p class="section-kicker">切换庄家</p>
+      <h2 id="dealer-modal-title">选择下一轮庄家</h2>
+      <p id="dealer-modal-description" class="modal-description"></p>
+      <div id="dealer-option-list" class="dealer-option-list"></div>
+      <div class="modal-actions">
+        <button id="dealer-cancel-btn" type="button" class="secondary-btn">取消</button>
+        <button id="dealer-confirm-btn" type="button" class="primary-btn">确认并开始下一轮</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-stack" class="toast-stack"></div>
+
+  <script src="supabase-config.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
