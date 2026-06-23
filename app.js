@@ -59,6 +59,8 @@ const els = {
   playerLoginList: document.querySelector("#player-login-list"),
   loginPlayerCount: document.querySelector("#login-player-count"),
   loginStatus: document.querySelector("#login-status"),
+  setupSection: document.querySelector(".setup-section"),
+  setupGrid: document.querySelector(".setup-grid"),
   newPlayerName: document.querySelector("#new-player-name"),
   addPlayerBtn: document.querySelector("#add-player-btn"),
   dealerInitialScoreInput: document.querySelector("#dealer-initial-score-input"),
@@ -115,6 +117,31 @@ const els = {
   dealerConfirmBtn: document.querySelector("#dealer-confirm-btn"),
   toastStack: document.querySelector("#toast-stack")
 };
+
+function attachLoginNewDayButton() {
+  if (!els.newDayBtn || !els.setupSection) {
+    return;
+  }
+
+  let actions = els.setupSection.querySelector(".setup-actions");
+  if (!actions) {
+    actions = document.createElement("div");
+    actions.className = "setup-actions";
+    if (els.setupGrid?.parentNode === els.setupSection) {
+      els.setupSection.insertBefore(actions, els.setupGrid.nextSibling);
+    } else {
+      els.setupSection.appendChild(actions);
+    }
+  }
+
+  actions.appendChild(els.newDayBtn);
+}
+
+attachLoginNewDayButton();
+
+if (els.playerBetStat) {
+  els.playerBetStat.closest(".player-stat-card")?.classList.add("hidden");
+}
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -412,8 +439,16 @@ function getPlayerRoundScore(playerId, dayNumber, roundNumber) {
     .reduce((sum, log) => sum + getSignedLogScore(log), 0);
 }
 
-function getDealerCandidates() {
-  return state.players.filter((player) => isOnline(player) && !isDealerPlayer(player.id));
+function getDealerCandidates(includeCurrentDealer = false) {
+  return state.players.filter((player) => {
+    if (!isOnline(player)) {
+      return false;
+    }
+    if (includeCurrentDealer) {
+      return true;
+    }
+    return !isDealerPlayer(player.id);
+  });
 }
 
 function pushToast(message, tone = "info") {
@@ -847,6 +882,8 @@ function renderHistoryItems(logs) {
 
   return logs
     .map((log) => {
+      const currentDealer = getDealerPlayer();
+      const dealerName = log.dealer_name || (log.result_type === "dealer_collect" ? log.player_name : currentDealer?.name) || "未记录";
       const toneClass =
         log.result_type === "lose"
           ? "log-loss"
@@ -858,17 +895,17 @@ function renderHistoryItems(logs) {
 
       return `
         <article class="history-item ${toneClass}">
-          <div class="history-row">
+          <div class="history-row history-row-top">
             <strong>${escapeHtml(log.player_name || "玩家")}</strong>
-            <span>第 ${Number(log.day_number ?? 1)} 天 · 第 ${log.round_number} 轮 · 第 ${log.hand_number} 局</span>
-          </div>
-          <div class="history-row">
-            <span>${formatResultLabel(log.result_type)} · 下注 ${formatMoney(log.bet_amount)} · 变化 ${formatMoney(log.transfer_amount)}</span>
             <span>${formatDateTime(log.created_at)}</span>
           </div>
-          <div class="history-row history-row-strong">
-            <span>玩家结算后：${formatMoney(log.player_score_after)}</span>
-            <span>庄家结算后：${formatMoney(log.dealer_score_after)}</span>
+          <div class="history-row history-row-compact">
+            <span>第 ${Number(log.day_number ?? 1)} 天 · 第 ${log.round_number} 轮 · 第 ${log.hand_number} 局</span>
+            <span>庄家：${escapeHtml(dealerName || "未记录")}</span>
+          </div>
+          <div class="history-row history-row-compact history-row-strong">
+            <span>${formatLogSummary(log)}</span>
+            <span>玩家 ${formatMoney(log.player_score_after)} · 庄 ${formatMoney(log.dealer_score_after)}</span>
           </div>
         </article>
       `;
@@ -1165,7 +1202,17 @@ async function startNextHand() {
   pushToast("下一局已开始，所有下注重置为 0。", "success");
 }
 
-async function startNewDay() {
+function startNewDay() {
+  openDealerModalForNewDay();
+}
+
+async function startNewDayWithDealer(nextDealerPlayerId) {
+  const nextDealer = state.players.find((player) => player.id === Number(nextDealerPlayerId));
+  if (!nextDealer) {
+    pushToast("请先选择今日庄家。", "warning");
+    return;
+  }
+
   const { error } = await state.client.rpc("start_next_day");
   if (error) {
     console.error(error);
@@ -1173,7 +1220,22 @@ async function startNewDay() {
     return;
   }
 
-  pushToast("今天已开启，局数和轮数已回到起点。", "success");
+  const { error: updateError } = await state.client
+    .from("app_state")
+    .update({
+      dealer_player_id: nextDealer.id,
+      round_message: `${nextDealer.name} 已成为今日庄家。`
+    })
+    .eq("id", 1);
+
+  if (updateError) {
+    console.error(updateError);
+    pushToast(updateError.message || "今日已重置，但设置庄家失败。", "error");
+    return;
+  }
+
+  pushToast(`${nextDealer.name} 已成为今日庄家。`, "success");
+  await refreshAndRender();
 }
 
 function queueLayoutSave(playerId, patch) {
@@ -1618,6 +1680,7 @@ function renderDealerModal() {
     els.dealerModalTitle.textContent = "选择下一轮庄家";
     els.dealerModalDescription.textContent = "";
     els.dealerOptionList.innerHTML = "";
+    els.dealerConfirmBtn.textContent = "确认并开始下一轮";
     els.dealerConfirmBtn.disabled = true;
     return;
   }
@@ -1626,12 +1689,19 @@ function renderDealerModal() {
     .map((playerId) => state.players.find((player) => player.id === playerId))
     .filter(Boolean);
 
-  els.dealerModalTitle.textContent =
-    state.pendingDealerChange.source === "player" ? "确认由我当庄家" : "选择下一轮庄家";
-  els.dealerModalDescription.textContent =
-    state.pendingDealerChange.source === "player"
-      ? "确认后会自动开启下一轮。上一位庄家的最终庄分会结算到上一位庄家的本轮和今日得分里。"
-      : "请选择下一轮的庄家。确认后会自动开启下一轮，并结算上一位庄家的最终庄分。";
+  if (state.pendingDealerChange.source === "player") {
+    els.dealerModalTitle.textContent = "确认由我当庄家";
+    els.dealerModalDescription.textContent = "确认后会自动开启下一轮。上一位庄家的最终庄分会结算到上一位庄家的本轮和今日得分里。";
+    els.dealerConfirmBtn.textContent = "确认并开始下一轮";
+  } else if (state.pendingDealerChange.source === "new-day") {
+    els.dealerModalTitle.textContent = "选择今日庄家";
+    els.dealerModalDescription.textContent = "请选择开启今日后的庄家。确认后会重置到新的一天，并把该玩家设为今日庄家。";
+    els.dealerConfirmBtn.textContent = "确认并开启今日";
+  } else {
+    els.dealerModalTitle.textContent = "选择下一轮庄家";
+    els.dealerModalDescription.textContent = "请选择下一轮的庄家。确认后会自动开启下一轮，并结算上一位庄家的最终庄分。";
+    els.dealerConfirmBtn.textContent = "确认并开始下一轮";
+  }
 
   els.dealerOptionList.innerHTML = candidates
     .map((player) => {
@@ -1661,6 +1731,21 @@ function openDealerModalForAdmin() {
 
   state.pendingDealerChange = {
     source: "admin",
+    candidateIds: candidates.map((player) => player.id),
+    selectedPlayerId: candidates[0].id
+  };
+  renderDealerModal();
+}
+
+function openDealerModalForNewDay() {
+  const candidates = getDealerCandidates(true);
+  if (!candidates.length) {
+    pushToast("当前没有可作为今日庄家的在线玩家。", "warning");
+    return;
+  }
+
+  state.pendingDealerChange = {
+    source: "new-day",
     candidateIds: candidates.map((player) => player.id),
     selectedPlayerId: candidates[0].id
   };
@@ -1701,13 +1786,19 @@ async function startNextRound(nextDealerPlayerId) {
 }
 
 async function confirmDealerChange() {
+  const source = state.pendingDealerChange?.source;
   const nextDealerPlayerId = Number(state.pendingDealerChange?.selectedPlayerId) || null;
   if (!nextDealerPlayerId) {
-    pushToast("请先选择下一轮庄家。", "warning");
+    pushToast(source === "new-day" ? "请先选择今日庄家。" : "请先选择下一轮庄家。", "warning");
     return;
   }
 
   closeDealerModal();
+  if (source === "new-day") {
+    await startNewDayWithDealer(nextDealerPlayerId);
+    return;
+  }
+
   await startNextRound(nextDealerPlayerId);
 }
 
