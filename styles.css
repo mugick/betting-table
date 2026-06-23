@@ -241,6 +241,23 @@ h3 {
   gap: 18px;
 }
 
+.login-primary-action {
+  display: grid;
+}
+
+.login-primary-action #new-day-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 20px 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+  color: #fffaf1;
+  border: 0;
+  box-shadow: 0 16px 34px rgba(196, 144, 60, 0.28);
+  font-size: 1.12rem;
+  font-weight: 800;
+}
+
 .login-entry-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1250,6 +1267,12 @@ h3 {
   .player-action-card,
   .player-history-card {
     padding: 18px;
+  }
+
+  .login-primary-action #new-day-btn {
+    padding: 17px 18px;
+    border-radius: 18px;
+    font-size: 1rem;
   }
 
   .topbar-stats {

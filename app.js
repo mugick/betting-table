@@ -52,6 +52,7 @@ const state = {
 const els = {
   setupBanner: document.querySelector("#setup-banner"),
   loginView: document.querySelector("#login-view"),
+  loginPanel: document.querySelector(".login-panel"),
   adminView: document.querySelector("#admin-view"),
   playerView: document.querySelector("#player-view"),
   adminLoginBtn: document.querySelector("#admin-login-btn"),
@@ -119,22 +120,23 @@ const els = {
 };
 
 function attachLoginNewDayButton() {
-  if (!els.newDayBtn || !els.setupSection) {
+  if (!els.newDayBtn || !els.loginPanel) {
     return;
   }
 
-  let actions = els.setupSection.querySelector(".setup-actions");
-  if (!actions) {
-    actions = document.createElement("div");
-    actions.className = "setup-actions";
-    if (els.setupGrid?.parentNode === els.setupSection) {
-      els.setupSection.insertBefore(actions, els.setupGrid.nextSibling);
-    } else {
-      els.setupSection.appendChild(actions);
-    }
+  let primaryAction = els.loginPanel.querySelector(".login-primary-action");
+  if (!primaryAction) {
+    primaryAction = document.createElement("div");
+    primaryAction.className = "login-primary-action";
+    els.loginPanel.insertBefore(primaryAction, els.loginPanel.firstChild);
   }
 
-  actions.appendChild(els.newDayBtn);
+  primaryAction.appendChild(els.newDayBtn);
+
+  const setupActions = els.setupSection?.querySelector(".setup-actions");
+  if (setupActions && !setupActions.children.length) {
+    setupActions.remove();
+  }
 }
 
 attachLoginNewDayButton();
@@ -1234,8 +1236,9 @@ async function startNewDayWithDealer(nextDealerPlayerId) {
     return;
   }
 
-  pushToast(`${nextDealer.name} 已成为今日庄家。`, "success");
+  setSession({ role: "admin", name: ADMIN_LOGIN_NAME });
   await refreshAndRender();
+  pushToast(`${nextDealer.name} 已成为今日庄家，已进入总控台。`, "success");
 }
 
 function queueLayoutSave(playerId, patch) {
