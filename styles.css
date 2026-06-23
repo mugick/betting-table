@@ -439,7 +439,7 @@ h3 {
   position: absolute;
   left: 16px;
   top: 16px;
-  width: 168px;
+  width: 150px;
   padding: 12px 14px;
   pointer-events: auto;
 }
@@ -465,9 +465,9 @@ h3 {
   position: absolute;
   left: 16px;
   top: 118px;
-  width: 126px;
-  padding: 8px;
-  gap: 8px;
+  width: 108px;
+  padding: 7px;
+  gap: 7px;
   border-radius: 18px;
   display: flex;
   flex-direction: column;
@@ -501,7 +501,7 @@ h3 {
   top: 16px;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: flex-end;
   justify-content: flex-start;
   gap: 8px;
   pointer-events: auto;
@@ -515,10 +515,10 @@ h3 {
 }
 
 .admin-workspace .topbar-stats {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 8px;
+  justify-items: end;
 }
 
 .dealer-panel,
@@ -530,8 +530,8 @@ h3 {
 }
 
 .dealer-panel {
-  min-width: 136px;
-  padding: 12px 14px;
+  min-width: 112px;
+  padding: 10px 12px;
   border-radius: 18px;
   display: grid;
   gap: 4px;
@@ -571,8 +571,8 @@ h3 {
 }
 
 .stat-pill {
-  min-width: 88px;
-  padding: 12px 14px;
+  min-width: 76px;
+  padding: 10px 12px;
   border-radius: 18px;
 }
 
@@ -801,9 +801,9 @@ h3 {
 
 .bet-seat {
   position: absolute;
-  width: 214px;
-  padding: 10px;
-  border-radius: 22px;
+  width: 198px;
+  padding: 8px;
+  border-radius: 20px;
   background: rgba(255, 248, 236, 0.96);
   border: 1px solid rgba(29, 24, 20, 0.12);
   box-shadow: 0 18px 26px rgba(11, 20, 17, 0.2);
@@ -835,10 +835,10 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding: 8px 10px;
-  border-radius: 16px;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 7px 8px;
+  border-radius: 14px;
   background: linear-gradient(135deg, rgba(196, 144, 60, 0.16), rgba(30, 90, 74, 0.16));
   cursor: grab;
   touch-action: none;
@@ -851,57 +851,57 @@ h3 {
 .seat-tag {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.82rem;
+  gap: 7px;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
 .seat-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
 }
 
 .seat-subtitle {
-  font-size: 0.74rem;
+  font-size: 0.68rem;
 }
 
 .remove-btn {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
   background: rgba(181, 70, 55, 0.1);
   color: var(--chip-red);
-  font-size: 1rem;
+  font-size: 0.92rem;
 }
 
 .seat-fields {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .seat-meta-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 
 .seat-meta-item {
-  padding: 9px 10px;
-  border-radius: 14px;
+  padding: 7px 8px;
+  border-radius: 12px;
   background: rgba(29, 24, 20, 0.04);
 }
 
 .seat-meta-item span {
   display: block;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
 }
 
 .seat-meta-item strong {
   display: block;
   margin-top: 3px;
-  font-size: 1rem;
+  font-size: 0.92rem;
 }
 
 .field-group {
@@ -910,7 +910,7 @@ h3 {
 }
 
 .field-label {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
 }
 
@@ -922,13 +922,13 @@ h3 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .range-wrap strong {
-  min-width: 42px;
+  min-width: 38px;
   text-align: right;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
 }
 
 .chip-row {
@@ -959,13 +959,13 @@ h3 {
 .result-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 
 .bet-seat .result-btn {
-  padding: 12px 10px;
-  border-radius: 14px;
-  font-size: 0.92rem;
+  padding: 10px 8px;
+  border-radius: 12px;
+  font-size: 0.84rem;
 }
 
 .result-btn.lose {
@@ -1335,7 +1335,7 @@ h3 {
   }
 
   .bet-seat {
-    width: 188px;
+    width: 176px;
   }
 
   .new-match-btn {
@@ -1348,22 +1348,44 @@ h3 {
   .admin-workspace .topbar-title {
     left: 10px;
     top: 10px;
-    width: 132px;
-    padding: 10px 12px;
+    width: 108px;
+    padding: 8px 9px;
   }
 
   .admin-workspace .floating-toolbar {
     left: 10px;
     top: 96px;
-    width: 104px;
-    padding: 6px;
-    gap: 6px;
+    width: 78px;
+    padding: 4px;
+    gap: 4px;
   }
 
   .admin-workspace .score-strip {
     right: 10px;
     top: 10px;
     gap: 6px;
+  }
+
+  .admin-workspace .dealer-panel {
+    width: 132px;
+    min-width: 132px;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+
+  .admin-workspace .stat-pill {
+    width: 78px;
+    min-width: 78px;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+
+  .admin-workspace .stat-pill span {
+    font-size: 0.68rem;
+  }
+
+  .admin-workspace .stat-pill strong {
+    font-size: 1.08rem;
   }
 }
 
@@ -1372,7 +1394,8 @@ body.tablet-minimal .stage-chrome {
 }
 
 body.tablet-minimal .topbar-title {
-  padding: 10px 12px;
+  width: 104px;
+  padding: 7px 8px;
 }
 
 body.tablet-minimal .topbar-title .eyebrow {
@@ -1380,21 +1403,22 @@ body.tablet-minimal .topbar-title .eyebrow {
 }
 
 body.tablet-minimal .topbar-title h1 {
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 body.tablet-minimal .floating-toolbar {
-  padding: 8px;
-  gap: 8px;
-  border-radius: 18px;
+  width: 72px;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 14px;
 }
 
 body.tablet-minimal .primary-btn,
 body.tablet-minimal .secondary-btn,
 body.tablet-minimal .ghost-btn {
-  padding: 8px 10px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 6px 6px;
+  border-radius: 10px;
+  font-size: 0.7rem;
 }
 
 body.tablet-minimal .count-control {
@@ -1416,41 +1440,67 @@ body.tablet-minimal input[type="text"] {
 body.tablet-minimal .dealer-panel,
 body.tablet-minimal .stat-pill,
 body.tablet-minimal .player-stat-card {
-  padding: 8px 10px;
-  border-radius: 14px;
+  padding: 7px 9px;
+  border-radius: 13px;
+}
+
+body.tablet-minimal .dealer-panel {
+  width: 116px;
+  min-width: 116px;
+  padding: 7px 8px;
+}
+
+body.tablet-minimal #round-status-text {
+  display: none;
+}
+
+body.tablet-minimal .dealer-label,
+body.tablet-minimal .stat-pill span {
+  font-size: 0.64rem;
 }
 
 body.tablet-minimal .dealer-panel strong,
 body.tablet-minimal .stat-pill strong,
 body.tablet-minimal .player-stat-card strong {
-  font-size: 1.06rem;
+  font-size: 0.9rem;
 }
 
-body.tablet-minimal .bet-seat {
-  width: 188px;
-  padding: 8px;
-  border-radius: 18px;
+body.tablet-minimal .dealer-panel small {
+  font-size: 0.66rem;
+  line-height: 1.2;
 }
 
-body.tablet-minimal .seat-handle {
-  margin-bottom: 8px;
+body.tablet-minimal .stat-pill {
+  width: 68px;
+  min-width: 68px;
   padding: 7px 8px;
 }
 
+body.tablet-minimal .bet-seat {
+  width: 172px;
+  padding: 7px;
+  border-radius: 16px;
+}
+
+body.tablet-minimal .seat-handle {
+  margin-bottom: 7px;
+  padding: 6px 7px;
+}
+
 body.tablet-minimal .seat-tag {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
 }
 
 body.tablet-minimal .seat-subtitle {
-  font-size: 0.68rem;
+  font-size: 0.64rem;
 }
 
 body.tablet-minimal .seat-fields {
-  gap: 6px;
+  gap: 5px;
 }
 
 body.tablet-minimal .chip-btn,
 body.tablet-minimal .result-btn {
-  padding: 8px 8px;
-  font-size: 0.76rem;
+  padding: 7px 6px;
+  font-size: 0.72rem;
 }
