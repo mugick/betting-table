@@ -100,6 +100,8 @@ const els = {
   playerChip5: document.querySelector("#player-chip-5"),
   playerChip10: document.querySelector("#player-chip-10"),
   playerChipClear: document.querySelector("#player-chip-clear"),
+  playerConfirmBetBtn: document.querySelector("#player-confirm-bet-btn"),
+  playerBetConfirmStatus: document.querySelector("#player-bet-confirm-status"),
   playerBecomeDealerBtn: document.querySelector("#player-become-dealer-btn"),
   playerHistoryCount: document.querySelector("#player-history-count"),
   playerHistoryList: document.querySelector("#player-history-list"),
@@ -159,6 +161,10 @@ function escapeHtml(text) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function isMissingBetConfirmedColumnError(error) {
+  return String(error?.message || "").includes("bet_confirmed");
 }
 
 function getSupabaseConfig() {
@@ -311,6 +317,10 @@ function getDealerPlayer() {
 
 function isDealerPlayer(playerId) {
   return Number(playerId) > 0 && Number(state.appState?.dealer_player_id) === Number(playerId);
+}
+
+function isBetConfirmed(player) {
+  return Boolean(player?.bet_confirmed);
 }
 
 function getCurrentPlayer() {
@@ -794,6 +804,7 @@ function renderAdminPlayers() {
   els.playersLayer.innerHTML = onlinePlayers
     .map((player, index) => {
       const online = isOnline(player);
+      const betConfirmed = isBetConfirmed(player);
       const effectClass =
         effect?.playerId === player.id
           ? `seat-effect seat-effect-${effect.action}`
@@ -828,6 +839,10 @@ function renderAdminPlayers() {
                 <span>下注</span>
                 <strong>${formatMoney(player.bet)}</strong>
               </div>
+            </div>
+
+            <div class="seat-confirm-status ${betConfirmed ? "seat-confirmed" : "seat-pending"}">
+              ${betConfirmed ? "已确认下注" : "待确认下注"}
             </div>
 
             <div class="result-row">
@@ -946,6 +961,8 @@ function renderPlayer() {
   );
   const roundScore = getPlayerRoundScore(player.id, dayNumber, roundNumber);
   const dayScore = getPlayerDayScore(player.id, dayNumber);
+  const betConfirmed = isBetConfirmed(player);
+  const betValue = Number(player.bet) || 0;
 
   els.playerNameHeading.textContent = player.name;
   els.playerStatusMessage.textContent = state.appState?.round_message || "等待同步";
@@ -965,6 +982,9 @@ function renderPlayer() {
   els.playerChip5.disabled = currentDealer;
   els.playerChip10.disabled = currentDealer;
   els.playerChipClear.disabled = currentDealer;
+  els.playerConfirmBetBtn.disabled = currentDealer || betValue <= 0 || betConfirmed;
+  els.playerConfirmBetBtn.textContent = betConfirmed ? "已确认下注" : "确认下注";
+  els.playerBetConfirmStatus.textContent = `当前状态：${betConfirmed ? "已确认" : "未确认"}`;
   els.playerBecomeDealerBtn.disabled = currentDealer;
   els.playerBecomeDealerBtn.textContent = currentDealer ? "当前庄家" : "当庄家";
   els.playerUpdatedAt.textContent = `最近更新：${formatDateTime(player.updated_at)}`;
@@ -1120,23 +1140,34 @@ async function savePlayerBet(playerId, bet) {
   }
 
   const previousBet = player ? player.bet : null;
+  const previousConfirmed = player ? player.bet_confirmed : null;
   const optimisticUpdatedAt = new Date().toISOString();
 
   if (player) {
     player.bet = safeBet;
+    player.bet_confirmed = false;
     player.updated_at = optimisticUpdatedAt;
     render();
   }
 
-  const { error } = await state.client
+  let { error } = await state.client
     .from("players")
-    .update({ bet: safeBet, updated_at: optimisticUpdatedAt })
+    .update({ bet: safeBet, bet_confirmed: false, updated_at: optimisticUpdatedAt })
     .eq("id", playerId);
+
+  if (error && isMissingBetConfirmedColumnError(error)) {
+    const retry = await state.client
+      .from("players")
+      .update({ bet: safeBet, updated_at: optimisticUpdatedAt })
+      .eq("id", playerId);
+    error = retry.error;
+  }
 
   if (error) {
     console.error(error);
     if (player) {
       player.bet = previousBet;
+      player.bet_confirmed = previousConfirmed;
       render();
     }
     pushToast("保存下注失败。", "error");
@@ -1146,6 +1177,53 @@ async function savePlayerBet(playerId, bet) {
   if (state.session?.role === "player" && state.session.playerId === playerId) {
     await touchPresence();
   }
+}
+
+async function confirmPlayerBet(playerId) {
+  const player = state.players.find((entry) => entry.id === playerId);
+  if (!player) {
+    return;
+  }
+
+  if (isDealerPlayer(playerId)) {
+    pushToast("庄家本轮不能下注。", "warning");
+    return;
+  }
+
+  if ((Number(player.bet) || 0) <= 0) {
+    pushToast("下注大于 0 才能确认。", "warning");
+    return;
+  }
+
+  if (isBetConfirmed(player)) {
+    pushToast("当前下注已经确认。", "warning");
+    return;
+  }
+
+  const optimisticUpdatedAt = new Date().toISOString();
+  player.bet_confirmed = true;
+  player.updated_at = optimisticUpdatedAt;
+  render();
+
+  const { error } = await state.client
+    .from("players")
+    .update({ bet_confirmed: true, updated_at: optimisticUpdatedAt })
+    .eq("id", playerId);
+
+  if (error) {
+    console.error(error);
+    player.bet_confirmed = false;
+    render();
+    if (isMissingBetConfirmedColumnError(error)) {
+      pushToast("请先执行下注确认的 Supabase SQL。", "error");
+      return;
+    }
+    pushToast("确认下注失败。", "error");
+    return;
+  }
+
+  await touchPresence();
+  pushToast("下注已确认。", "success");
 }
 
 async function removePlayer(playerId) {
@@ -1609,6 +1687,13 @@ function bindEvents() {
   });
   els.playerChipClear.addEventListener("click", () => {
     void handlePlayerChip("clear");
+  });
+  els.playerConfirmBetBtn.addEventListener("click", () => {
+    const player = getCurrentPlayer();
+    if (!player) {
+      return;
+    }
+    void confirmPlayerBet(player.id);
   });
   els.playerBecomeDealerBtn.addEventListener("click", () => {
     const player = getCurrentPlayer();
